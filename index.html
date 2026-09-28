@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATA CHEQUEO MARCA COMERCIAL</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librería SheetJS para generar archivos Excel (.xlsx) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e5a8a',
+                        navy: '#103254',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 15px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1300px; margin: 0 auto; }
+
+        /* Header Principal con Degradado */
+        .top-header {
+            background: linear-gradient(90deg, #103254 0%, #1e5a8a 35%, #8b2332 75%, #b94025 100%);
+            border-radius: 14px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .top-header img.logo-corp {
+            max-height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .top-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .header-right i {
+            color: #1e5a8a;
+        }
+
+        /* Botón verde para descargar Excel */
+        .btn-excel {
+            background-color: #107c41;
+            color: white;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-excel:hover {
+            background-color: #0b5c30;
+        }
+
+        /* Tabla y Contenedores */
+        .table-wrap { overflow-x: auto; max-height: 500px; border: 1px solid #e2e8f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background-color: #f8fafc; padding: 12px; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10; font-weight: 700; color: #1e293b; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+        tr:hover { background-color: #f8fafc; }
+
+        /* Paginación */
+        .pagination-btn {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #1e5a8a;
+            color: white;
+            border-color: #1e5a8a;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-btn.active {
+            background-color: #1e5a8a;
+            color: white;
+            border-color: #1e5a8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Principal -->
+        <header class="top-header">
+            <div class="header-left">
+                <img src="https://mpw-pwt.github.io/Ejecuciones/Manpower%20Group.png" alt="Logo Corporativo" class="logo-corp">
+                <h1 id="tituloHeader">DATA CHEQUEO MARCA COMERCIAL</h1>
+            </div>
+            <div class="header-right">
+                <i class="fa-regular fa-calendar-check"></i>
+                <span>Fecha de corte: <strong id="lblFechaCorte">--/--/----</strong></span>
+            </div>
+        </header>
+
+        <!-- SELECCIÓN DE PERÍODO Y FILTROS COMPACTOS -->
+        <div class="bg-white rounded-xl p-6 shadow-soft mb-8">
+            <h2 class="font-semibold text-lg mb-5 flex items-center gap-2 text-slate-800">
+                <i class="fa fa-calendar text-primary"></i> Seleccionar Período
+            </h2>
+            
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="w-full sm:w-48">
+                    <label for="fechaInicio" class="block text-sm font-medium text-gray-600 mb-2">
+                        Fecha de Inicio
+                    </label>
+                    <input 
+                        type="date" 
+                        id="fechaInicio" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                    >
+                </div>
+
+                <div class="w-full sm:w-48">
+                    <label for="fechaFin" class="block text-sm font-medium text-gray-600 mb-2">
+                        Fecha de Finalización
+                    </label>
+                    <input 
+                        type="date" 
+                        id="fechaFin" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                    >
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button 
+                        id="btnConsultar"
+                        onclick="cargarVistaPrevia()"
+                        class="bg-primary hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+                    >
+                        <i class="fa fa-search"></i> Consultar Datos
+                    </button>
+
+                    <button 
+                        onclick="limpiarFiltros()"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
+                    >
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar filtros
+                    </button>
+
+                    <button 
+                        onclick="descargarXLSX()"
+                        class="btn-excel font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm shadow-sm"
+                    >
+                        <i class="fa-regular fa-file-excel text-base"></i> Descargar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE DATOS -->
+        <div class="bg-white rounded-xl p-6 shadow-soft">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+                <input type="text" id="searchInput" placeholder="Buscar en la tabla..." onkeyup="filtrarBusquedaRapida()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-72 focus:outline-none focus:ring-2 focus:ring-primary">
+                <div id="infoPaginacion" class="text-xs text-gray-500 font-medium"></div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="dataTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- CONTROLES DE PAGINACIÓN -->
+            <div id="paginationContainer" class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 flex-wrap gap-2 hidden">
+                <div id="paginationDetail" class="text-xs text-gray-600 font-medium"></div>
+                <div class="flex items-center gap-1" id="paginationButtons"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rawData = [];
+        let filteredData = [];
+        let searchFilteredData = [];
+        let dateColumnName = '';
+        let ultimaFechaCorteGlobal = '--/--/----';
+
+        // Variables de Paginación
+        let currentPage = 1;
+        const rowsPerPage = 50;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedInforme = urlParams.get('informe');
+
+        window.onload = function() {
+            const body = document.getElementById('tableBody');
+            body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando datos del informe...</td></tr>';
+
+            // Carga asíncrona de data.json
+            fetch('data.json')
+                .then(response => {
+                    if (!response.ok) throw new Error("No se pudo cargar data.json");
+                    return response.json();
+                })
+                .then(data => {
+                    rawData = data;
+
+                    if (rawData.length > 0 && selectedInforme) {
+                        const infoMatch = rawData.find(item => item.informe_id === selectedInforme);
+                        if (infoMatch) {
+                            document.getElementById('tituloHeader').innerText = "DATA CHEQUEO " + infoMatch.informe_nombre.toUpperCase();
+                        }
+                    }
+
+                    // Detectar la columna de fecha y calcular la Fecha de Corte Global Estática
+                    if (rawData.length > 0) {
+                        const sample = rawData[0];
+                        const posiblesColumnasFecha = ['Fecha Ejecucion', 'Fecha', 'FECHA', 'Fecha_Ejecucion', 'FECHA EJECUCION'];
+                        dateColumnName = posiblesColumnasFecha.find(col => Object.prototype.hasOwnProperty.call(sample, col)) || '';
+
+                        if (dateColumnName) {
+                            const baseDataset = selectedInforme ? rawData.filter(item => item.informe_id === selectedInforme) : rawData;
+                            const fechas = baseDataset
+                                .map(item => item[dateColumnName])
+                                .filter(f => f && f !== '')
+                                .sort();
+                            
+                            if (fechas.length > 0) {
+                                ultimaFechaCorteGlobal = fechas[fechas.length - 1];
+                            }
+                        }
+                    }
+
+                    document.getElementById('lblFechaCorte').innerText = ultimaFechaCorteGlobal;
+                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-filter mr-2"></i>Seleccione un período y presione "Consultar Datos" para cargar la información.</td></tr>';
+                })
+                .catch(error => {
+                    console.error("Error al cargar data.json:", error);
+                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error al cargar los datos. Verifique que data.json existe en el repositorio.</td></tr>';
+                });
+        };
+
+        function renderTablePage(page) {
+            currentPage = page;
+            const head = document.getElementById('tableHead');
+            const body = document.getElementById('tableBody');
+            const pagContainer = document.getElementById('paginationContainer');
+
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (searchFilteredData.length === 0) {
+                body.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-gray-500">No se encontraron registros para la consulta realizada.</td></tr>';
+                pagContainer.classList.add('hidden');
+                document.getElementById('infoPaginacion').innerText = '';
+                return;
+            }
+
+            pagContainer.classList.remove('hidden');
+
+            const keys = Object.keys(searchFilteredData[0]).filter(k => k !== 'informe_id' && k !== 'informe_nombre');
+            
+            let headerRow = '<tr>';
+            keys.forEach(k => headerRow += `<th>${k}</th>`);
+            headerRow += '</tr>';
+            head.innerHTML = headerRow;
+
+            // Rebanada para la página actual
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = searchFilteredData.slice(start, end);
+
+            pageData.forEach(row => {
+                let tr = '<tr>';
+                keys.forEach(k => tr += `<td>${row[k] !== undefined ? row[k] : ''}</td>`);
+                tr += '</tr>';
+                body.innerHTML += tr;
+            });
+
+            renderPaginationControls(searchFilteredData.length);
+        }
+
+        function renderPaginationControls(totalRows) {
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            const pagButtons = document.getElementById('paginationButtons');
+            const pagDetail = document.getElementById('paginationDetail');
+            const infoPag = document.getElementById('infoPaginacion');
+
+            const startRow = (currentPage - 1) * rowsPerPage + 1;
+            const endRow = Math.min(currentPage * rowsPerPage, totalRows);
+
+            pagDetail.innerText = `Mostrando ${startRow} a ${endRow} de ${totalRows} registros`;
+            infoPag.innerText = `Página ${currentPage} de ${totalPages}`;
+
+            let buttonsHTML = '';
+
+            buttonsHTML += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="pagination-btn"><i class="fa-solid fa-angle-left"></i></button>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                buttonsHTML += `<button onclick="goToPage(1)" class="pagination-btn">1</button>`;
+                if (startPage > 2) buttonsHTML += `<span class="px-1 text-gray-400">...</span>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                buttonsHTML += `<button onclick="goToPage(${i})" class="pagination-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) buttonsHTML += `<span class="px-1 text-gray-400">...</span>`;
+                buttonsHTML += `<button onclick="goToPage(${totalPages})" class="pagination-btn">${totalPages}</button>`;
+            }
+
+            buttonsHTML += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="pagination-btn"><i class="fa-solid fa-angle-right"></i></button>`;
+
+            pagButtons.innerHTML = buttonsHTML;
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(searchFilteredData.length / rowsPerPage);
+            if (page < 1 || page > totalPages) return;
+            renderTablePage(page);
+        }
+
+        function cargarVistaPrevia() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+
+            let baseData = selectedInforme ? rawData.filter(item => item.informe_id === selectedInforme) : [...rawData];
+
+            if (!fechaInicio && !fechaFin) {
+                filteredData = baseData;
+            } else {
+                filteredData = baseData.filter(item => {
+                    if (!dateColumnName || !item[dateColumnName]) return true;
+                    const fechaVal = item[dateColumnName];
+                    
+                    if (fechaInicio && fechaFin) {
+                        return fechaVal >= fechaInicio && fechaVal <= fechaFin;
+                    } else if (fechaInicio) {
+                        return fechaVal >= fechaInicio;
+                    } else if (fechaFin) {
+                        return fechaVal <= fechaFin;
+                    }
+                    return true;
+                });
+            }
+
+            document.getElementById('searchInput').value = '';
+            searchFilteredData = [...filteredData];
+            renderTablePage(1);
+        }
+
+        function filtrarBusquedaRapida() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!term) {
+                searchFilteredData = [...filteredData];
+            } else {
+                searchFilteredData = filteredData.filter(item => 
+                    Object.values(item).some(val => String(val).toLowerCase().includes(term))
+                );
+            }
+            renderTablePage(1);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('infoPaginacion').innerText = '';
+            
+            document.getElementById('lblFechaCorte').innerText = ultimaFechaCorteGlobal;
+
+            filteredData = [];
+            searchFilteredData = [];
+            
+            const body = document.getElementById('tableBody');
+            const head = document.getElementById('tableHead');
+            const pagContainer = document.getElementById('paginationContainer');
+            
+            head.innerHTML = '';
+            body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-filter mr-2"></i>Seleccione un período y presione "Consultar Datos" para cargar la información.</td></tr>';
+            pagContainer.classList.add('hidden');
+        }
+
+        function descargarXLSX() {
+            if (searchFilteredData.length === 0) {
+                alert("No hay datos visibles para descargar. Realiza una consulta con 'Consultar Datos' o revisa el término de búsqueda.");
+                return;
+            }
+
+            const cleanData = searchFilteredData.map(item => {
+                const { informe_id, informe_nombre, ...rest } = item;
+                return rest;
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(cleanData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data_Filtrada");
+
+            const fileName = `Descarga_${selectedInforme || 'Marca_Comercial'}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+        }
+    </script>
+</body>
+</html>
