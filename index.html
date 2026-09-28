@@ -4,24 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DATA CHEQUEO MARCA COMERCIAL</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome CDN para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Librería SheetJS para generar archivos Excel (.xlsx) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#1e5a8a',
-                        navy: '#103254',
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 15px rgba(0,0,0,0.05)',
-                    }
+                    colors: { primary: '#1e5a8a', navy: '#103254' },
+                    boxShadow: { 'soft': '0 4px 15px rgba(0,0,0,0.05)' }
                 }
             }
         }
@@ -30,104 +22,27 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1300px; margin: 0 auto; }
-
-        /* Header Principal con Degradado */
-        .top-header {
-            background: linear-gradient(90deg, #103254 0%, #1e5a8a 35%, #8b2332 75%, #b94025 100%);
-            border-radius: 14px;
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-            margin-bottom: 20px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .top-header img.logo-corp {
-            max-height: 48px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .top-header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: 0.5px;
-            color: #ffffff;
-            text-transform: uppercase;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-        }
-
-        .header-right i {
-            color: #1e5a8a;
-        }
-
-        /* Botón verde para descargar Excel */
-        .btn-excel {
-            background-color: #107c41;
-            color: white;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .btn-excel:hover {
-            background-color: #0b5c30;
-        }
-
-        /* Tabla y Contenedores */
+        .top-header { background: linear-gradient(90deg, #103254 0%, #1e5a8a 35%, #8b2332 75%, #b94025 100%); border-radius: 14px; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 6px 20px rgba(0,0,0,0.15); margin-bottom: 20px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .top-header img.logo-corp { max-height: 48px; width: auto; object-fit: contain; }
+        .top-header h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase; }
+        .header-right { display: flex; align-items: center; gap: 8px; font-size: 13px; background: rgba(255, 255, 255, 0.15); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(4px); }
+        .header-right i { color: #1e5a8a; }
+        .btn-excel { background-color: #107c41; color: white; font-weight: 600; transition: all 0.2s ease; }
+        .btn-excel:hover { background-color: #0b5c30; }
         .table-wrap { overflow-x: auto; max-height: 500px; border: 1px solid #e2e8f0; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
         th { background-color: #f8fafc; padding: 12px; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10; font-weight: 700; color: #1e293b; }
         td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
         tr:hover { background-color: #f8fafc; }
-
-        /* Paginación */
-        .pagination-btn {
-            padding: 6px 12px;
-            border: 1px solid #e2e8f0;
-            background-color: #ffffff;
-            color: #475569;
-            font-size: 13px;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .pagination-btn:hover:not(:disabled) {
-            background-color: #1e5a8a;
-            color: white;
-            border-color: #1e5a8a;
-        }
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .pagination-btn.active {
-            background-color: #1e5a8a;
-            color: white;
-            border-color: #1e5a8a;
-        }
+        .pagination-btn { padding: 6px 12px; border: 1px solid #e2e8f0; background-color: #ffffff; color: #475569; font-size: 13px; font-weight: 500; border-radius: 6px; transition: all 0.2s; }
+        .pagination-btn:hover:not(:disabled) { background-color: #1e5a8a; color: white; border-color: #1e5a8a; }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination-btn.active { background-color: #1e5a8a; color: white; border-color: #1e5a8a; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header Principal -->
         <header class="top-header">
             <div class="header-left">
                 <img src="https://mpw-pwt.github.io/Ejecuciones/Manpower%20Group.png" alt="Logo Corporativo" class="logo-corp">
@@ -139,76 +54,44 @@
             </div>
         </header>
 
-        <!-- SELECCIÓN DE PERÍODO Y FILTROS COMPACTOS -->
         <div class="bg-white rounded-xl p-6 shadow-soft mb-8">
             <h2 class="font-semibold text-lg mb-5 flex items-center gap-2 text-slate-800">
                 <i class="fa fa-calendar text-primary"></i> Seleccionar Período
             </h2>
-            
             <div class="flex flex-wrap items-end gap-4">
                 <div class="w-full sm:w-48">
-                    <label for="fechaInicio" class="block text-sm font-medium text-gray-600 mb-2">
-                        Fecha de Inicio
-                    </label>
-                    <input 
-                        type="date" 
-                        id="fechaInicio" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                    >
+                    <label for="fechaInicio" class="block text-sm font-medium text-gray-600 mb-2">Fecha de Inicio</label>
+                    <input type="date" id="fechaInicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
                 </div>
-
                 <div class="w-full sm:w-48">
-                    <label for="fechaFin" class="block text-sm font-medium text-gray-600 mb-2">
-                        Fecha de Finalización
-                    </label>
-                    <input 
-                        type="date" 
-                        id="fechaFin" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                    >
+                    <label for="fechaFin" class="block text-sm font-medium text-gray-600 mb-2">Fecha de Finalización</label>
+                    <input type="date" id="fechaFin" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
                 </div>
-
                 <div class="flex flex-wrap gap-2">
-                    <button 
-                        id="btnConsultar"
-                        onclick="cargarVistaPrevia()"
-                        class="bg-primary hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
-                    >
+                    <button id="btnConsultar" onclick="cargarVistaPrevia()" class="bg-primary hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
                         <i class="fa fa-search"></i> Consultar Datos
                     </button>
-
-                    <button 
-                        onclick="limpiarFiltros()"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm"
-                    >
+                    <button onclick="limpiarFiltros()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
                         <i class="fa-solid fa-rotate-left"></i> Limpiar filtros
                     </button>
-
-                    <button 
-                        onclick="descargarXLSX()"
-                        class="btn-excel font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm shadow-sm"
-                    >
+                    <button onclick="descargarXLSX()" class="btn-excel font-medium px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm shadow-sm">
                         <i class="fa-regular fa-file-excel text-base"></i> Descargar
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- TABLA DE DATOS -->
         <div class="bg-white rounded-xl p-6 shadow-soft">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
                 <input type="text" id="searchInput" placeholder="Buscar en la tabla..." onkeyup="filtrarBusquedaRapida()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-72 focus:outline-none focus:ring-2 focus:ring-primary">
                 <div id="infoPaginacion" class="text-xs text-gray-500 font-medium"></div>
             </div>
-
             <div class="table-wrap">
                 <table id="dataTable">
                     <thead id="tableHead"></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-
-            <!-- CONTROLES DE PAGINACIÓN -->
             <div id="paginationContainer" class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 flex-wrap gap-2 hidden">
                 <div id="paginationDetail" class="text-xs text-gray-600 font-medium"></div>
                 <div class="flex items-center gap-1" id="paginationButtons"></div>
@@ -223,7 +106,6 @@
         let dateColumnName = '';
         let ultimaFechaCorteGlobal = '--/--/----';
 
-        // Variables de Paginación
         let currentPage = 1;
         const rowsPerPage = 50;
 
@@ -232,16 +114,17 @@
 
         window.onload = function() {
             const body = document.getElementById('tableBody');
-            body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando datos del informe...</td></tr>';
+            body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando fragmentos de información...</td></tr>';
 
-            // Carga asíncrona de data.json
-            fetch('data.json')
-                .then(response => {
-                    if (!response.ok) throw new Error("No se pudo cargar data.json");
-                    return response.json();
+            // Cargar manifiesto y combinar todos los fragmentos
+            fetch('data/manifest.json')
+                .then(res => {
+                    if (!res.ok) throw new Error("No se pudo cargar el archivo manifest.json");
+                    return res.json();
                 })
-                .then(data => {
-                    rawData = data;
+                .then(files => Promise.all(files.map(file => fetch(file).then(r => r.json()))))
+                .then(chunks => {
+                    rawData = chunks.flat();
 
                     if (rawData.length > 0 && selectedInforme) {
                         const infoMatch = rawData.find(item => item.informe_id === selectedInforme);
@@ -250,7 +133,6 @@
                         }
                     }
 
-                    // Detectar la columna de fecha y calcular la Fecha de Corte Global Estática
                     if (rawData.length > 0) {
                         const sample = rawData[0];
                         const posiblesColumnasFecha = ['Fecha Ejecucion', 'Fecha', 'FECHA', 'Fecha_Ejecucion', 'FECHA EJECUCION'];
@@ -273,8 +155,8 @@
                     body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-filter mr-2"></i>Seleccione un período y presione "Consultar Datos" para cargar la información.</td></tr>';
                 })
                 .catch(error => {
-                    console.error("Error al cargar data.json:", error);
-                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error al cargar los datos. Verifique que data.json existe en el repositorio.</td></tr>';
+                    console.error("Error al cargar los fragmentos de data:", error);
+                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error al cargar los datos. Verifique que la carpeta /data/ existe en el repositorio.</td></tr>';
                 });
         };
 
@@ -303,7 +185,6 @@
             headerRow += '</tr>';
             head.innerHTML = headerRow;
 
-            // Rebanada para la página actual
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
             const pageData = searchFilteredData.slice(start, end);
@@ -331,7 +212,6 @@
             infoPag.innerText = `Página ${currentPage} de ${totalPages}`;
 
             let buttonsHTML = '';
-
             buttonsHTML += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="pagination-btn"><i class="fa-solid fa-angle-left"></i></button>`;
 
             let startPage = Math.max(1, currentPage - 2);
