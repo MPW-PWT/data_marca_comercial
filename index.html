@@ -112,14 +112,27 @@
         const urlParams = new URLSearchParams(window.location.search);
         const selectedInforme = urlParams.get('informe');
 
+        // Convierte fechas variadas al formato estricto YYYY-MM-DD que requiere <input type="date">
+        function normalizarFechaISO(val) {
+            if (!val) return '';
+            const str = String(val).trim().split(' ')[0]; // Remueve horas si existen
+            if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+            }
+            return str;
+        }
+
         window.onload = function() {
             const body = document.getElementById('tableBody');
             body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando fragmentos de información...</td></tr>';
 
-            // Cargar manifiesto y combinar todos los fragmentos
             fetch('data/manifest.json')
                 .then(res => {
-                    if (!res.ok) throw new Error("No se pudo cargar el archivo manifest.json");
+                    if (!res.ok) throw new Error("No se pudo cargar manifest.json");
                     return res.json();
                 })
                 .then(files => Promise.all(files.map(file => fetch(file).then(r => r.json()))))
@@ -133,7 +146,6 @@
                         }
                     }
 
-                    // Configurar detección de fechas y restricciones MIN / MAX en los calendarios
                     if (rawData.length > 0) {
                         const sample = rawData[0];
                         const posiblesColumnasFecha = ['Fecha Ejecucion', 'Fecha', 'FECHA', 'Fecha_Ejecucion', 'FECHA EJECUCION'];
@@ -141,25 +153,27 @@
 
                         if (dateColumnName) {
                             const baseDataset = selectedInforme ? rawData.filter(item => item.informe_id === selectedInforme) : rawData;
-                            const fechas = baseDataset
-                                .map(item => item[dateColumnName])
-                                .filter(f => f && f !== '')
+                            
+                            // Extraer y normalizar todas las fechas a YYYY-MM-DD
+                            const fechasISO = baseDataset
+                                .map(item => normalizarFechaISO(item[dateColumnName]))
+                                .filter(f => f && f.length === 10)
                                 .sort();
                             
-                            if (fechas.length > 0) {
-                                const fechaMinima = fechas[0];
-                                const fechaMaxima = fechas[fechas.length - 1];
+                            if (fechasISO.length > 0) {
+                                const fechaMinima = fechasISO[0];
+                                const fechaMaxima = fechasISO[fechasISO.length - 1];
                                 
                                 ultimaFechaCorteGlobal = fechaMaxima;
 
-                                // Aplicar límites de selección en el selector de fechas HTML
                                 const inputInicio = document.getElementById('fechaInicio');
                                 const inputFin = document.getElementById('fechaFin');
 
-                                inputInicio.min = fechaMinima;
-                                inputInicio.max = fechaMaxima;
-                                inputFin.min = fechaMinima;
-                                inputFin.max = fechaMaxima;
+                                // Asignación de límites directos en HTML5
+                                inputInicio.setAttribute('min', fechaMinima);
+                                inputInicio.setAttribute('max', fechaMaxima);
+                                inputFin.setAttribute('min', fechaMinima);
+                                inputFin.setAttribute('max', fechaMaxima);
                             }
                         }
                     }
@@ -168,8 +182,8 @@
                     body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-gray-500 font-medium"><i class="fa-solid fa-filter mr-2"></i>Seleccione un período y presione "Consultar Datos" para cargar la información.</td></tr>';
                 })
                 .catch(error => {
-                    console.error("Error al cargar los fragmentos de data:", error);
-                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error al cargar los datos. Verifique que la carpeta /data/ existe en el repositorio.</td></tr>';
+                    console.error("Error al cargar data:", error);
+                    body.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-red-500 font-medium"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Error al cargar los datos. Verifique la carpeta /data/.</td></tr>';
                 });
         };
 
@@ -266,7 +280,7 @@
             } else {
                 filteredData = baseData.filter(item => {
                     if (!dateColumnName || !item[dateColumnName]) return true;
-                    const fechaVal = item[dateColumnName];
+                    const fechaVal = normalizarFechaISO(item[dateColumnName]);
                     
                     if (fechaInicio && fechaFin) {
                         return fechaVal >= fechaInicio && fechaVal <= fechaFin;
