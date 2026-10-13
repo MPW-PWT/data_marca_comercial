@@ -133,6 +133,7 @@
                         }
                     }
 
+                    // Configurar detección de fechas y restricciones MIN / MAX en los calendarios
                     if (rawData.length > 0) {
                         const sample = rawData[0];
                         const posiblesColumnasFecha = ['Fecha Ejecucion', 'Fecha', 'FECHA', 'Fecha_Ejecucion', 'FECHA EJECUCION'];
@@ -146,7 +147,19 @@
                                 .sort();
                             
                             if (fechas.length > 0) {
-                                ultimaFechaCorteGlobal = fechas[fechas.length - 1];
+                                const fechaMinima = fechas[0];
+                                const fechaMaxima = fechas[fechas.length - 1];
+                                
+                                ultimaFechaCorteGlobal = fechaMaxima;
+
+                                // Aplicar límites de selección en el selector de fechas HTML
+                                const inputInicio = document.getElementById('fechaInicio');
+                                const inputFin = document.getElementById('fechaFin');
+
+                                inputInicio.min = fechaMinima;
+                                inputInicio.max = fechaMaxima;
+                                inputFin.min = fechaMinima;
+                                inputFin.max = fechaMaxima;
                             }
                         }
                     }
