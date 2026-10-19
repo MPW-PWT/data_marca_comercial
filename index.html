@@ -39,6 +39,19 @@
         .pagination-btn:hover:not(:disabled) { background-color: #1e5a8a; color: white; border-color: #1e5a8a; }
         .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .pagination-btn.active { background-color: #1e5a8a; color: white; border-color: #1e5a8a; }
+        
+        .bottom-footer {
+            background-color: #1d5786;
+            border-radius: 14px;
+            padding: 14px 24px;
+            text-align: right;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            margin-top: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -97,6 +110,10 @@
                 <div class="flex items-center gap-1" id="paginationButtons"></div>
             </div>
         </div>
+
+        <footer class="bottom-footer">
+            Creado por: Ing. Henry Martinez
+        </footer>
     </div>
 
     <script>
@@ -112,10 +129,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const selectedInforme = urlParams.get('informe');
 
-        // Convierte fechas variadas al formato estricto YYYY-MM-DD que requiere <input type="date">
         function normalizarFechaISO(val) {
             if (!val) return '';
-            const str = String(val).trim().split(' ')[0]; // Remueve horas si existen
+            const str = String(val).trim().split(' ')[0];
             if (str.includes('/')) {
                 const parts = str.split('/');
                 if (parts.length === 3) {
@@ -154,7 +170,6 @@
                         if (dateColumnName) {
                             const baseDataset = selectedInforme ? rawData.filter(item => item.informe_id === selectedInforme) : rawData;
                             
-                            // Extraer y normalizar todas las fechas a YYYY-MM-DD
                             const fechasISO = baseDataset
                                 .map(item => normalizarFechaISO(item[dateColumnName]))
                                 .filter(f => f && f.length === 10)
@@ -169,7 +184,6 @@
                                 const inputInicio = document.getElementById('fechaInicio');
                                 const inputFin = document.getElementById('fechaFin');
 
-                                // Asignación de límites directos en HTML5
                                 inputInicio.setAttribute('min', fechaMinima);
                                 inputInicio.setAttribute('max', fechaMaxima);
                                 inputFin.setAttribute('min', fechaMinima);
